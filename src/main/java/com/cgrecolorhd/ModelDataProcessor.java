@@ -3,7 +3,10 @@ package com.cgrecolorhd;
 import net.runelite.api.Model;
 import lombok.extern.slf4j.Slf4j;
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.List;
 
@@ -38,7 +41,7 @@ public class ModelDataProcessor
         {
             if (inputStream == null)
             {
-                throw new FileNotFoundException("Resource not found: " + filePath);
+                throw new IOException("Resource not found: " + filePath);
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream)))
             {

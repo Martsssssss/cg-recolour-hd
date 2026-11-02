@@ -540,8 +540,7 @@ public class RecolorCG extends Plugin
 	{
 		for (Plugin plugin : pluginManager.getPlugins())
 		{
-			PluginDescriptor descriptor = plugin.getClass().getAnnotation(PluginDescriptor.class);
-			if (descriptor != null && HD_PLUGIN_NAME.equals(descriptor.name()))
+			if (HD_PLUGIN_NAME.equals(plugin.getName()))
 			{
 				return pluginManager.isPluginEnabled(plugin);
 			}
