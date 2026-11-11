@@ -241,4 +241,18 @@ public interface RecolorCGConfig extends Config
 	{
 		return 50;
 	}
+
+	@ConfigItem(
+			keyName = "expFloorPattern",
+			name = "Recolour floor pattern",
+			description = "Also recolours the red swirl pattern painted on the Corrupted Gauntlet floor tiles.<br>" +
+					"It's part of the floor itself rather than an object, so it normally stays red,<br>" +
+					"and it can show through the singing bowl's see-through beam.",
+			position = 5,
+			section = experimentalSection
+	)
+	default boolean expFloorPattern()
+	{
+		return false;
+	}
 }

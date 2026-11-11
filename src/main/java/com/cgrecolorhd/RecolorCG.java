@@ -260,6 +260,9 @@ public class RecolorCG extends Plugin
 								recolorGroundObject(groundObject, true);
 							}
 						}
+						if (config.expFloorPattern() && regionId == REGION_ID_GAUNTLET_CORRUPTED) {
+							recolorTile(tile);
+						}
 					}
 				}
 			}
@@ -698,10 +701,71 @@ public class RecolorCG extends Plugin
 			brightShift = Math.max(-24, Math.min(16, Math.round((hsb[2] - 0.7f) * 60f * strength)));
 		}
 
+		currentPrimary = primary;
 		synchronized (dataProcessor)
 		{
 			dataProcessor.setTone(satShift, brightShift);
 			dataProcessor.recolorData(primary, secondary, config.harmonize());
+		}
+	}
+
+	//
+	// Experimental: the red pattern painted on the floor itself
+	//
+	// The floor's red swirl pattern is part of the tiles (tile paint and tile models), not an object,
+	// so the normal recolor never touches it. It also shows through the see-through singing bowl beam.
+	// Tile colours are rebuilt from the map every time the area loads, so nothing needs undoing.
+	private Color currentPrimary = new Color(25, 45, 135);
+	private static final int RED_REFERENCE = 65452;
+
+	private void recolorTile(Tile tile)
+	{
+		SceneTilePaint paint = tile.getSceneTilePaint();
+		if (paint != null)
+		{
+			paint.setSwColor(recolorTileColor(paint.getSwColor()));
+			paint.setSeColor(recolorTileColor(paint.getSeColor()));
+			paint.setNwColor(recolorTileColor(paint.getNwColor()));
+			paint.setNeColor(recolorTileColor(paint.getNeColor()));
+		}
+
+		SceneTileModel tileModel = tile.getSceneTileModel();
+		if (tileModel != null)
+		{
+			recolorTileColors(tileModel.getTriangleColorA());
+			recolorTileColors(tileModel.getTriangleColorB());
+			recolorTileColors(tileModel.getTriangleColorC());
+		}
+	}
+
+	private void recolorTileColors(int[] colors)
+	{
+		if (colors == null)
+		{
+			return;
+		}
+		for (int i = 0; i < colors.length; i++)
+		{
+			colors[i] = recolorTileColor(colors[i]);
+		}
+	}
+
+	private int recolorTileColor(int hsl)
+	{
+		// skip hidden/invalid values (e.g. 12345678) and anything that isn't clearly red
+		if (hsl < 0 || hsl > 0xFFFF)
+		{
+			return hsl;
+		}
+		int hue = (hsl >> 10) & 63;
+		int sat = (hsl >> 7) & 7;
+		if (sat < 2 || (hue > 4 && hue < 59))
+		{
+			return hsl;
+		}
+		synchronized (dataProcessor)
+		{
+			return dataProcessor.hueShift(hsl, currentPrimary, config.harmonize() ? hsl : RED_REFERENCE);
 		}
 	}
 }
